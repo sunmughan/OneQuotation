@@ -1,0 +1,47 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+  
+  <!-- Header -->
+  <rect x="10" y="10" width="380" height="50" fill="#1976d2" rx="4" ry="4"/>
+  <text x="200" y="42" font-family="Arial" font-size="20" fill="white" text-anchor="middle" font-weight="bold">PROFESSIONAL QUOTATION</text>
+  
+  <!-- Company Info Section -->
+  <rect x="10" y="70" width="180" height="70" fill="#f5f5f5" rx="4" ry="4"/>
+  <text x="20" y="90" font-family="Arial" font-size="12" fill="#333333" font-weight="bold">COMPANY NAME</text>
+  <line x1="20" y1="95" x2="170" y2="95" stroke="#1976d2" stroke-width="2"/>
+  <text x="20" y="115" font-family="Arial" font-size="10" fill="#555555">Address Line 1</text>
+  <text x="20" y="130" font-family="Arial" font-size="10" fill="#555555">Phone | Email</text>
+  
+  <!-- Quotation Info Section -->
+  <rect x="210" y="70" width="180" height="70" fill="#f5f5f5" rx="4" ry="4"/>
+  <text x="220" y="90" font-family="Arial" font-size="12" fill="#333333" font-weight="bold">QUOTATION DETAILS</text>
+  <line x1="220" y1="95" x2="370" y2="95" stroke="#1976d2" stroke-width="2"/>
+  <text x="220" y="115" font-family="Arial" font-size="10" fill="#555555">Quotation #: QT-12345</text>
+  <text x="220" y="130" font-family="Arial" font-size="10" fill="#555555">Date: 01/01/2023</text>
+  
+  <!-- Items Table -->
+  <rect x="10" y="150" width="380" height="100" fill="#f9f9f9" rx="4" ry="4"/>
+  <rect x="10" y="150" width="380" height="25" fill="#e0e0e0" rx="4" ry="4"/>
+  <text x="25" y="167" font-family="Arial" font-size="10" fill="#333333" font-weight="bold">ITEM</text>
+  <text x="200" y="167" font-family="Arial" font-size="10" fill="#333333" font-weight="bold">QTY</text>
+  <text x="250" y="167" font-family="Arial" font-size="10" fill="#333333" font-weight="bold">PRICE</text>
+  <text x="350" y="167" font-family="Arial" font-size="10" fill="#333333" font-weight="bold">TOTAL</text>
+  
+  <!-- Sample Items -->
+  <line x1="10" y1="175" x2="390" y2="175" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="25" y="195" font-family="Arial" font-size="10" fill="#555555">Product Name</text>
+  <text x="200" y="195" font-family="Arial" font-size="10" fill="#555555">2</text>
+  <text x="250" y="195" font-family="Arial" font-size="10" fill="#555555">₹1,000.00</text>
+  <text x="350" y="195" font-family="Arial" font-size="10" fill="#555555">₹2,000.00</text>
+  
+  <line x1="10" y1="205" x2="390" y2="205" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="25" y="225" font-family="Arial" font-size="10" fill="#555555">Product Name</text>
+  <text x="200" y="225" font-family="Arial" font-size="10" fill="#555555">1</text>
+  <text x="250" y="225" font-family="Arial" font-size="10" fill="#555555">₹1,500.00</text>
+  <text x="350" y="225" font-family="Arial" font-size="10" fill="#555555">₹1,500.00</text>
+  
+  <!-- Total Section -->
+  <rect x="210" y="260" width="180" height="30" fill="#1976d2" rx="4" ry="4"/>
+  <text x="220" y="280" font-family="Arial" font-size="12" fill="white" font-weight="bold">TOTAL: ₹3,500.00</text>
+</svg>

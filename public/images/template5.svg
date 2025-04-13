@@ -1,0 +1,46 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+  
+  <!-- Top and Bottom Borders -->
+  <rect x="0" y="0" width="400" height="10" fill="#2196f3"/>
+  <rect x="0" y="290" width="400" height="10" fill="#2196f3"/>
+  
+  <!-- Header -->
+  <rect x="20" y="30" width="360" height="60" fill="#e3f2fd" rx="8" ry="8"/>
+  <text x="200" y="65" font-family="Arial" font-size="22" fill="#0d47a1" text-anchor="middle" font-weight="bold">QUOTATION</text>
+  <circle cx="50" cy="60" r="20" fill="#2196f3"/>
+  <text x="50" y="65" font-family="Arial" font-size="12" fill="white" text-anchor="middle" font-weight="bold">LOGO</text>
+  
+  <!-- Quotation Info Box -->
+  <rect x="20" y="100" width="360" height="50" fill="#f5f5f5" rx="8" ry="8"/>
+  <text x="40" y="120" font-family="Arial" font-size="10" fill="#0d47a1" font-weight="bold">QUOTATION #: QT-12345</text>
+  <text x="200" y="120" font-family="Arial" font-size="10" fill="#0d47a1" font-weight="bold">DATE: 01/01/2023</text>
+  <text x="40" y="140" font-family="Arial" font-size="10" fill="#0d47a1" font-weight="bold">VALID UNTIL: 01/31/2023</text>
+  <text x="200" y="140" font-family="Arial" font-size="10" fill="#0d47a1" font-weight="bold">PREPARED BY: John Doe</text>
+  
+  <!-- From/To Section -->
+  <rect x="20" y="160" width="170" height="70" fill="#e3f2fd" rx="8" ry="8"/>
+  <text x="40" y="180" font-family="Arial" font-size="12" fill="#0d47a1" font-weight="bold">FROM:</text>
+  <text x="40" y="195" font-family="Arial" font-size="10" fill="#333333">Company Name</text>
+  <text x="40" y="210" font-family="Arial" font-size="10" fill="#555555">Company Address</text>
+  <text x="40" y="225" font-family="Arial" font-size="10" fill="#555555">Phone | Email</text>
+  
+  <rect x="210" y="160" width="170" height="70" fill="#e3f2fd" rx="8" ry="8"/>
+  <text x="230" y="180" font-family="Arial" font-size="12" fill="#0d47a1" font-weight="bold">TO:</text>
+  <text x="230" y="195" font-family="Arial" font-size="10" fill="#333333">Customer Name</text>
+  <text x="230" y="210" font-family="Arial" font-size="10" fill="#555555">Customer Address</text>
+  <text x="230" y="225" font-family="Arial" font-size="10" fill="#555555">Phone | Email</text>
+  
+  <!-- Items Table Header -->
+  <rect x="20" y="240" width="360" height="25" fill="#2196f3" rx="8" ry="8"/>
+  <text x="40" y="257" font-family="Arial" font-size="10" fill="white" font-weight="bold">DESCRIPTION</text>
+  <text x="200" y="257" font-family="Arial" font-size="10" fill="white" font-weight="bold">QTY</text>
+  <text x="250" y="257" font-family="Arial" font-size="10" fill="white" font-weight="bold">PRICE</text>
+  <text x="350" y="257" font-family="Arial" font-size="10" fill="white" font-weight="bold" text-anchor="end">AMOUNT</text>
+  
+  <!-- Total Section -->
+  <rect x="210" y="270" width="170" height="15" fill="#e3f2fd" rx="4" ry="4"/>
+  <text x="230" y="282" font-family="Arial" font-size="12" fill="#0d47a1" font-weight="bold">TOTAL:</text>
+  <text x="350" y="282" font-family="Arial" font-size="12" fill="#0d47a1" font-weight="bold" text-anchor="end">₹3,500.00</text>
+</svg>
