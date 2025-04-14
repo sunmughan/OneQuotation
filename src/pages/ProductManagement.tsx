@@ -66,7 +66,6 @@ interface TilesProduct {
   noOfBoxes: number;
   totalAmount: number;
   pricePerSqFt: number;
-  packagingInfo: number;
   areaInOneBox: number;
 }
 
@@ -155,7 +154,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     noOfBoxes: 0,
     totalAmount: 0,
     pricePerSqFt: 0,
-    packagingInfo: 0,
     areaInOneBox: 0 // Added missing required property
   });
   
@@ -262,7 +260,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
         noOfBoxes: 0,
         totalAmount: 0,
         pricePerSqFt: 0,
-        packagingInfo: 0,
         areaInOneBox: 0
       });
     } else if (activeTab === 'adhesive') {
@@ -329,40 +326,29 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     const mrp = name === 'mrp' ? parseFloat(String(value)) || 0 : tilesForm.mrp;
     const discount = name === 'discount' ? parseFloat(String(value)) || 0 : tilesForm.discount;
     const areaRequired = name === 'areaRequired' ? parseFloat(String(value)) || 0 : tilesForm.areaRequired;
-    const packagingInfo = name === 'packagingInfo' ? parseInt(String(value)) || 0 : tilesForm.packagingInfo || 3; // Default to 3 if not set
     const areaInOneBox = name === 'areaInOneBox' ? parseFloat(String(value)) || 0 : tilesForm.areaInOneBox;
     const pricePerSqFt = name === 'pricePerSqFt' ? parseFloat(String(value)) || 0 : tilesForm.pricePerSqFt || mrp;
     
-    // Calculate total price first (MRP × area required)
-    const totalPrice = mrp * areaRequired;
+    // Calculate total amount (MRP × area required) - this should remain unchanged by discount
+    const totalAmount = mrp * areaRequired;
     
-    // Calculate discounted price by subtracting the discount amount from total price
-    // Formula: discountedPrice = totalPrice - (totalPrice * discount/100)
-    const discountedPrice = totalPrice - (totalPrice * discount / 100);
+    // Calculate discounted price by applying the discount percentage
+    // Formula: discountedPrice = totalAmount - (totalAmount * discount/100)
+    const discountedPrice = totalAmount - (totalAmount * discount / 100);
     
     // Calculate number of boxes based on area required and area in one box
     let noOfBoxes = tilesForm.noOfBoxes;
     
-    if (name === 'areaRequired' || name === 'areaInOneBox' || name === 'packagingInfo') {
+    if (name === 'areaRequired' || name === 'areaInOneBox') {
       if (areaRequired > 0 && areaInOneBox > 0) {
-        // Calculate the number of tiles needed based on area required
-        const tilesNeeded = Math.ceil(areaRequired / (areaInOneBox / packagingInfo));
-        
-        // Calculate boxes needed (each box must contain exactly packagingInfo tiles)
-        noOfBoxes = Math.ceil(tilesNeeded / packagingInfo);
+        // Calculate boxes needed based on area required and area in one box
+        noOfBoxes = Math.ceil(areaRequired / areaInOneBox);
       } else {
         noOfBoxes = 0;
       }
     } else if (name === 'noOfBoxes') {
       noOfBoxes = parseInt(String(value)) || 0;
     }
-    
-    // Calculate base total amount (before discount)
-    const baseTotalAmount = mrp * areaRequired;
-    
-    // Apply discount to the total amount
-    // Formula: totalAmount = baseTotalAmount - (baseTotalAmount * discount/100)
-    const totalAmount = baseTotalAmount - (baseTotalAmount * discount / 100);
     
     // Update all relevant fields
     updatedForm = { 
@@ -371,7 +357,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
       discount, 
       discountedPrice, 
       areaRequired, 
-      packagingInfo, 
       areaInOneBox, 
       noOfBoxes, 
       totalAmount, 
@@ -631,7 +616,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
           // Parse numeric values
           const mrp = parseFloat(row.mrp) || 0;
           const discount = parseFloat(row.discount) || 0;
-          const packagingInfo = parseFloat(row.packagingInfo) || 3; // Default to 3 items per box if not specified
           const areaRequired = parseFloat(row.areaRequired) || 0;
           const areaInOneBox = parseFloat(row.areaInOneBox) || 0; // New field for area in one box
           
@@ -640,21 +624,16 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
           const totalPrice = mrp * areaRequired;
           const discountedPrice = totalPrice - (totalPrice * discount / 100)
           
-          // Calculate number of boxes based on the requirement that each box contains exactly packagingInfo tiles
+          // Calculate number of boxes based on area required and area in one box
           let noOfBoxes = 0;
           
           if (areaRequired > 0 && areaInOneBox > 0) {
-            // Calculate the number of tiles needed based on area required
-            const tilesNeeded = Math.ceil(areaRequired / (areaInOneBox / packagingInfo));
-            
-            // Calculate boxes needed (each box must contain exactly packagingInfo tiles)
-            noOfBoxes = Math.ceil(tilesNeeded / packagingInfo);
+            // Calculate boxes needed based on area required and area in one box
+            noOfBoxes = Math.ceil(areaRequired / areaInOneBox);
           }
-          // Calculate base total amount using MRP (not discountedPrice)
-          const baseTotalAmount = mrp * areaRequired;
-          // Apply discount to the total amount
-          // Formula: totalAmount = baseTotalAmount - (baseTotalAmount * discount/100)
-          const totalAmount = baseTotalAmount - (baseTotalAmount * discount / 100);
+          // Calculate total amount using MRP (unchanged by discount)
+          const totalAmount = mrp * areaRequired;
+          // The discounted price is already calculated above and reflects the discount
           
           // Normalize dimension format to handle both "100 * 200" and "100*200" formats
           // This will standardize the format regardless of spaces around the asterisk
@@ -678,7 +657,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
             noOfBoxes,
             totalAmount,
             pricePerSqFt: areaRequired > 0 ? discountedPrice / areaRequired : 0,
-            packagingInfo,
             areaInOneBox
           };
           
@@ -792,7 +770,6 @@ let templateWorksheet: XLSX.WorkSheet;
         mrp: 100,
         discount: 10,
         areaRequired: 100, // Area in square feet
-        packagingInfo: 3, // Items per box (default is 3)
         areaInOneBox: 30.92, // Area in one box in square feet
         noOfBoxes: 4, // Automatically calculated based on area required and area in one box
         pricePerSqFt: 90,
@@ -846,9 +823,8 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
       // Add cell comments/notes to explain fields
       const comments = [
         { cell: 'D2', comment: 'Format should be "Length * Breadth" in mm' },
-        { cell: 'I2', comment: 'Items Per Box - Default is 3. Used to calculate number of boxes needed if Area in 1 Box is not provided.' },
-        { cell: 'J2', comment: 'Area in 1 Box - Area covered by one box in square feet. Used to calculate number of boxes needed.' },
-        { cell: 'K2', comment: 'Number of Boxes will be automatically calculated based on Area Required and Area in 1 Box' }
+        { cell: 'I2', comment: 'Area in 1 Box - Area covered by one box in square feet. Used to calculate number of boxes needed.' },
+        { cell: 'J2', comment: 'Number of Boxes will be automatically calculated based on Area Required and Area in 1 Box' }
       ];
       
       // XLSX.js doesn't directly support comments, but we can add a note in the header
@@ -856,7 +832,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
       
       // Add a header row with explanations
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        'Brand', 'Area of Application', 'Shade Name', 'Dimensions', 'Surface', 'MRP', 'Discount', 'Area Required', 'Items Per Box', 'Area in 1 Box', 'No of Boxes', 'Price Per SqFt', 'Total Amount'
+        'Brand', 'Area of Application', 'Shade Name', 'Dimensions', 'Surface', 'MRP', 'Discount', 'Area Required', 'Area in 1 Box', 'No of Boxes', 'Price Per SqFt', 'Total Amount'
       ]], { origin: 'A1' });
       
       // Make the header row bold
@@ -979,7 +955,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                         <TableCell align="right">Discount (%)</TableCell>
                         <TableCell align="right">Discounted Price (₹)</TableCell>
                         <TableCell align="right">Price/Sq.Ft (₹)</TableCell>
-                        <TableCell align="right">Packaging</TableCell>
                       </>
                     )}
                     
@@ -1019,7 +994,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                           <TableCell align="right">{(product as TilesProduct).discount}%</TableCell>
                           <TableCell align="right">{(product as TilesProduct).discountedPrice}</TableCell>
                           <TableCell align="right">{(product as TilesProduct).pricePerSqFt}</TableCell>
-                          <TableCell align="right">{(product as TilesProduct).packagingInfo}</TableCell>
                         </>
                       )}
                       
@@ -1155,19 +1129,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 InputProps={{ inputProps: { min: 0, max: 100 } }}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Items Per Box"
-                name="packagingInfo"
-                type="number"
-                value={tilesForm.packagingInfo}
-                onChange={handleTilesFormChange}
-                margin="normal"
-                InputProps={{ inputProps: { min: 1 } }}
-                helperText="Default is 3 items per box. When items exceed this, new boxes are automatically calculated."
-              />
-            </Grid>
+
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -1191,7 +1153,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 onChange={handleTilesFormChange}
                 margin="normal"
                 InputProps={{ inputProps: { min: 0 } }}
-                helperText="Enter the area covered by one box in square feet. Each box contains exactly 3 tiles."
+                helperText="Enter the area covered by one box in square feet."
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -1204,7 +1166,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 onChange={handleTilesFormChange}
                 margin="normal"
                 InputProps={{ inputProps: { min: 0 } }}
-                helperText="Automatically calculated based on area required (each box contains 3 tiles)"
+                helperText="Automatically calculated based on area required and area in one box"
                 disabled
               />
             </Grid>
