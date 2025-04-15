@@ -30,7 +30,8 @@ import {
   InputAdornment,
   Tooltip,
   Divider,
-  CircularProgress
+  CircularProgress,
+  Autocomplete
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -45,7 +46,6 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-
 
 // Add FormChangeEvent type definition
 type FormChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string | number } };
@@ -66,8 +66,7 @@ interface TilesProduct {
   noOfBoxes: number;
   totalAmount: number;
   pricePerSqFt: number;
-  packagingInfo: number;
-  areaInOneBox: number;
+  areaInOneBox: number; // Required for calculating number of boxes
 }
 
 interface AdhesiveProduct {
@@ -123,6 +122,14 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
   // State for search
   const [searchTerm, setSearchTerm] = useState('');
   
+  // State for brand and product variation suggestions
+  const [brandOptions, setBrandOptions] = useState<string[]>([]);
+  const [shadeOptions, setShadeOptions] = useState<string[]>([]);
+  const [adhesiveBrandOptions, setAdhesiveBrandOptions] = useState<string[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [cpswBrandOptions, setCpswBrandOptions] = useState<string[]>([]);
+  const [productCodeOptions, setProductCodeOptions] = useState<string[]>([]);
+  
   // State for dialog
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
@@ -155,8 +162,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     noOfBoxes: 0,
     totalAmount: 0,
     pricePerSqFt: 0,
-    packagingInfo: 0,
-    areaInOneBox: 0 // Added missing required property
+    areaInOneBox: 0
   });
   
   // Form state for adhesive
@@ -188,6 +194,22 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     const savedProducts = JSON.parse(localStorage.getItem('products') || '{}');
     if (Object.keys(savedProducts).length > 0) {
       setProducts(savedProducts);
+      
+      // Initialize brand options for all product types
+      if (savedProducts.tiles && savedProducts.tiles.length > 0) {
+        const uniqueBrands = Array.from(new Set(savedProducts.tiles.map((product: TilesProduct) => product.brand)));
+        setBrandOptions(uniqueBrands as string[]);
+      }
+      
+      if (savedProducts.adhesive && savedProducts.adhesive.length > 0) {
+        const uniqueBrands = Array.from(new Set(savedProducts.adhesive.map((product: AdhesiveProduct) => product.brand)));
+        setAdhesiveBrandOptions(uniqueBrands as string[]);
+      }
+      
+      if (savedProducts['cp-sw'] && savedProducts['cp-sw'].length > 0) {
+        const uniqueBrands = Array.from(new Set(savedProducts['cp-sw'].map((product: CPSWProduct) => product.brand)));
+        setCpswBrandOptions(uniqueBrands as string[]);
+      }
     }
     filterProducts(activeTab, '');
   }, []);
@@ -262,7 +284,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
         noOfBoxes: 0,
         totalAmount: 0,
         pricePerSqFt: 0,
-        packagingInfo: 0,
         areaInOneBox: 0
       });
     } else if (activeTab === 'adhesive') {
@@ -320,6 +341,99 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     setDialogOpen(false);
   };
   
+  // Get unique brands from tiles products
+  const getUniqueBrands = (): string[] => {
+    if (!products.tiles || products.tiles.length === 0) return [];
+    return Array.from(new Set(products.tiles.map(product => product.brand)));
+  };
+  
+  // Get unique shades for a specific brand
+  const getUniqueShades = (brand: string): string[] => {
+    if (!products.tiles || products.tiles.length === 0) return [];
+    return Array.from(
+      new Set(
+        products.tiles
+          .filter(product => product.brand === brand)
+          .map(product => product.shadeName)
+      )
+    );
+  };
+  
+  // Get unique categories for a specific adhesive brand
+  const getUniqueCategories = (brand: string): string[] => {
+    if (!products.adhesive || products.adhesive.length === 0) return [];
+    return Array.from(
+      new Set(
+        products.adhesive
+          .filter(product => product.brand === brand)
+          .map(product => product.category)
+      )
+    );
+  };
+  
+  // Get unique product codes for a specific CP & SW brand
+  const getUniqueProductCodes = (brand: string): string[] => {
+    if (!products['cp-sw'] || products['cp-sw'].length === 0) return [];
+    return Array.from(
+      new Set(
+        products['cp-sw']
+          .filter(product => product.brand === brand)
+          .map(product => product.productCode)
+      )
+    );
+  };
+  
+  // Handle brand selection in tiles form
+  const handleBrandChange = (_event: React.SyntheticEvent, newValue: string | null) => {
+    // Update the brand in the form and reset shadeName
+    const updatedForm = { ...tilesForm, brand: newValue || '', shadeName: '' };
+    setTilesForm(updatedForm);
+    
+    // Update shade options based on selected brand
+    if (newValue) {
+      const shades = getUniqueShades(newValue);
+      setShadeOptions(shades);
+    } else {
+      setShadeOptions([]);
+    }
+  };
+  
+  // Handle brand selection in adhesive form
+  const handleAdhesiveBrandChange = (_event: React.SyntheticEvent, newValue: string | null) => {
+    // Update the brand in the form and reset category
+    const updatedForm = { ...adhesiveForm, brand: newValue || '', category: '' };
+    setAdhesiveForm(updatedForm);
+    
+    // Update category options based on selected brand
+    if (newValue) {
+      const categories = getUniqueCategories(newValue);
+      setCategoryOptions(categories);
+    } else {
+      setCategoryOptions([]);
+    }
+  };
+  
+  // Handle brand selection in cpsw form
+  const handleCpswBrandChange = (_event: React.SyntheticEvent, newValue: string | null) => {
+    // Update the brand in the form and reset productCode
+    const updatedForm = { ...cpswForm, brand: newValue || '', productCode: '' };
+    setCpswForm(updatedForm);
+    
+    // Update product code options based on selected brand
+    if (newValue) {
+      const productCodes = getUniqueProductCodes(newValue);
+      setProductCodeOptions(productCodes);
+    } else {
+      setProductCodeOptions([]);
+    }
+  };
+  
+  // Handle shade selection in tiles form
+  const handleShadeChange = (_event: React.SyntheticEvent, newValue: string | null) => {
+    const updatedForm = { ...tilesForm, shadeName: newValue || '' };
+    setTilesForm(updatedForm);
+  };
+  
   // Handle form change for tiles
   const handleTilesFormChange = (event: FormChangeEvent): void => {
     const { name, value } = event.target;
@@ -329,40 +443,26 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     const mrp = name === 'mrp' ? parseFloat(String(value)) || 0 : tilesForm.mrp;
     const discount = name === 'discount' ? parseFloat(String(value)) || 0 : tilesForm.discount;
     const areaRequired = name === 'areaRequired' ? parseFloat(String(value)) || 0 : tilesForm.areaRequired;
-    const packagingInfo = name === 'packagingInfo' ? parseInt(String(value)) || 0 : tilesForm.packagingInfo || 3; // Default to 3 if not set
-    const areaInOneBox = name === 'areaInOneBox' ? parseFloat(String(value)) || 0 : tilesForm.areaInOneBox;
     const pricePerSqFt = name === 'pricePerSqFt' ? parseFloat(String(value)) || 0 : tilesForm.pricePerSqFt || mrp;
+    const areaInOneBox = name === 'areaInOneBox' ? parseFloat(String(value)) || 0 : tilesForm.areaInOneBox;
     
-    // Calculate total price first (MRP × area required)
-    const totalPrice = mrp * areaRequired;
+    // Calculate total amount (MRP × area required) - this should remain unchanged by discount
+    const totalAmount = mrp * areaRequired;
     
-    // Calculate discounted price by subtracting the discount amount from total price
-    // Formula: discountedPrice = totalPrice - (totalPrice * discount/100)
-    const discountedPrice = totalPrice - (totalPrice * discount / 100);
+    // Calculate discounted price by applying the discount percentage
+    // Formula: discountedPrice = totalAmount - (totalAmount * discount/100)
+    const discountedPrice = totalAmount - (totalAmount * discount / 100);
     
     // Calculate number of boxes based on area required and area in one box
     let noOfBoxes = tilesForm.noOfBoxes;
     
-    if (name === 'areaRequired' || name === 'areaInOneBox' || name === 'packagingInfo') {
-      if (areaRequired > 0 && areaInOneBox > 0) {
-        // Calculate the number of tiles needed based on area required
-        const tilesNeeded = Math.ceil(areaRequired / (areaInOneBox / packagingInfo));
-        
-        // Calculate boxes needed (each box must contain exactly packagingInfo tiles)
-        noOfBoxes = Math.ceil(tilesNeeded / packagingInfo);
-      } else {
-        noOfBoxes = 0;
-      }
-    } else if (name === 'noOfBoxes') {
+    if (name === 'noOfBoxes') {
       noOfBoxes = parseInt(String(value)) || 0;
+    } else if ((name === 'areaRequired' || name === 'areaInOneBox') && areaInOneBox > 0) {
+      // Calculate number of boxes when area required or area in one box changes
+      // Always round up to the next whole number when there's a decimal value
+      noOfBoxes = Math.ceil(areaRequired / areaInOneBox);
     }
-    
-    // Calculate base total amount (before discount)
-    const baseTotalAmount = mrp * areaRequired;
-    
-    // Apply discount to the total amount
-    // Formula: totalAmount = baseTotalAmount - (baseTotalAmount * discount/100)
-    const totalAmount = baseTotalAmount - (baseTotalAmount * discount / 100);
     
     // Update all relevant fields
     updatedForm = { 
@@ -371,15 +471,15 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
       discount, 
       discountedPrice, 
       areaRequired, 
-      packagingInfo, 
-      areaInOneBox, 
       noOfBoxes, 
       totalAmount, 
-      pricePerSqFt 
+      pricePerSqFt,
+      areaInOneBox 
     };
     
     setTilesForm(updatedForm as TilesProduct);
   };
+
 
   
   // Handle form change for adhesive
@@ -443,6 +543,11 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
         };
         newProducts.tiles = [...products.tiles, newProduct];
         message = 'Tile product added successfully';
+        
+        // Update brand options if new brand is added
+        if (!brandOptions.includes(tilesForm.brand)) {
+          setBrandOptions([...brandOptions, tilesForm.brand]);
+        }
       } else { // edit
         newProducts.tiles = products.tiles.map(product => 
           product.id === selectedProduct?.id ? { ...tilesForm } : product
@@ -458,6 +563,11 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
         };
         newProducts.adhesive = [...products.adhesive, newProduct];
         message = 'Adhesive product added successfully';
+        
+        // Update brand options if new brand is added
+        if (!adhesiveBrandOptions.includes(adhesiveForm.brand)) {
+          setAdhesiveBrandOptions([...adhesiveBrandOptions, adhesiveForm.brand]);
+        }
       } else { // edit
         newProducts.adhesive = products.adhesive.map(product => 
           product.id === selectedProduct?.id ? { ...adhesiveForm } : product
@@ -473,6 +583,11 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
         };
         newProducts['cp-sw'] = [...products['cp-sw'], newProduct];
         message = 'CP & SW product added successfully';
+        
+        // Update brand options if new brand is added
+        if (!cpswBrandOptions.includes(cpswForm.brand)) {
+          setCpswBrandOptions([...cpswBrandOptions, cpswForm.brand]);
+        }
       } else { // edit
         newProducts['cp-sw'] = products['cp-sw'].map(product => 
           product.id === selectedProduct?.id ? { ...cpswForm } : product
@@ -631,30 +746,23 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
           // Parse numeric values
           const mrp = parseFloat(row.mrp) || 0;
           const discount = parseFloat(row.discount) || 0;
-          const packagingInfo = parseFloat(row.packagingInfo) || 3; // Default to 3 items per box if not specified
           const areaRequired = parseFloat(row.areaRequired) || 0;
-          const areaInOneBox = parseFloat(row.areaInOneBox) || 0; // New field for area in one box
+          const areaInOneBox = parseFloat(row.areaInOneBox) || 0;
+          let noOfBoxes = parseInt(row.noOfBoxes) || 0;
+          
+          // Calculate number of boxes if area in one box is provided
+          if (areaInOneBox > 0) {
+            // Always round up to the next whole number when there's a decimal value
+            noOfBoxes = Math.ceil(areaRequired / areaInOneBox);
+          }
           
           // Calculate discounted price by subtracting the discount amount from total price
           // Formula: discountedPrice = totalPrice - (totalPrice * discount/100)
           const totalPrice = mrp * areaRequired;
-          const discountedPrice = totalPrice - (totalPrice * discount / 100)
-          
-          // Calculate number of boxes based on the requirement that each box contains exactly packagingInfo tiles
-          let noOfBoxes = 0;
-          
-          if (areaRequired > 0 && areaInOneBox > 0) {
-            // Calculate the number of tiles needed based on area required
-            const tilesNeeded = Math.ceil(areaRequired / (areaInOneBox / packagingInfo));
-            
-            // Calculate boxes needed (each box must contain exactly packagingInfo tiles)
-            noOfBoxes = Math.ceil(tilesNeeded / packagingInfo);
-          }
-          // Calculate base total amount using MRP (not discountedPrice)
-          const baseTotalAmount = mrp * areaRequired;
-          // Apply discount to the total amount
-          // Formula: totalAmount = baseTotalAmount - (baseTotalAmount * discount/100)
-          const totalAmount = baseTotalAmount - (baseTotalAmount * discount / 100);
+          const discountedPrice = totalPrice - (totalPrice * discount / 100);
+          // Calculate total amount using MRP (unchanged by discount)
+          const totalAmount = mrp * areaRequired;
+          // The discounted price is already calculated above and reflects the discount
           
           // Normalize dimension format to handle both "100 * 200" and "100*200" formats
           // This will standardize the format regardless of spaces around the asterisk
@@ -678,7 +786,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
             noOfBoxes,
             totalAmount,
             pricePerSqFt: areaRequired > 0 ? discountedPrice / areaRequired : 0,
-            packagingInfo,
             areaInOneBox
           };
           
@@ -792,9 +899,8 @@ let templateWorksheet: XLSX.WorkSheet;
         mrp: 100,
         discount: 10,
         areaRequired: 100, // Area in square feet
-        packagingInfo: 3, // Items per box (default is 3)
-        areaInOneBox: 30.92, // Area in one box in square feet
-        noOfBoxes: 4, // Automatically calculated based on area required and area in one box
+        areaInOneBox: 30.72, // Area covered by one box in square feet
+        noOfBoxes: 4, // Number of boxes required (calculated as Math.ceil(areaRequired/areaInOneBox))
         pricePerSqFt: 90,
         totalAmount: 9000
       }];
@@ -846,9 +952,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
       // Add cell comments/notes to explain fields
       const comments = [
         { cell: 'D2', comment: 'Format should be "Length * Breadth" in mm' },
-        { cell: 'I2', comment: 'Items Per Box - Default is 3. Used to calculate number of boxes needed if Area in 1 Box is not provided.' },
-        { cell: 'J2', comment: 'Area in 1 Box - Area covered by one box in square feet. Used to calculate number of boxes needed.' },
-        { cell: 'K2', comment: 'Number of Boxes will be automatically calculated based on Area Required and Area in 1 Box' }
+        { cell: 'I2', comment: 'Number of Boxes - Enter the number of boxes required' }
       ];
       
       // XLSX.js doesn't directly support comments, but we can add a note in the header
@@ -856,7 +960,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
       
       // Add a header row with explanations
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        'Brand', 'Area of Application', 'Shade Name', 'Dimensions', 'Surface', 'MRP', 'Discount', 'Area Required', 'Items Per Box', 'Area in 1 Box', 'No of Boxes', 'Price Per SqFt', 'Total Amount'
+        'Brand', 'Area of Application', 'Shade Name', 'Dimensions', 'Surface', 'MRP', 'Discount', 'Area Required', 'Area in 1 Box', 'No of Boxes', 'Price Per SqFt', 'Total Amount'
       ]], { origin: 'A1' });
       
       // Make the header row bold
@@ -979,7 +1083,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                         <TableCell align="right">Discount (%)</TableCell>
                         <TableCell align="right">Discounted Price (₹)</TableCell>
                         <TableCell align="right">Price/Sq.Ft (₹)</TableCell>
-                        <TableCell align="right">Packaging</TableCell>
                       </>
                     )}
                     
@@ -1019,7 +1122,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                           <TableCell align="right">{(product as TilesProduct).discount}%</TableCell>
                           <TableCell align="right">{(product as TilesProduct).discountedPrice}</TableCell>
                           <TableCell align="right">{(product as TilesProduct).pricePerSqFt}</TableCell>
-                          <TableCell align="right">{(product as TilesProduct).packagingInfo}</TableCell>
                         </>
                       )}
                       
@@ -1080,13 +1182,41 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Brand"
-                name="brand"
+              <Autocomplete
+                freeSolo
+                options={brandOptions}
                 value={tilesForm.brand}
-                onChange={handleTilesFormChange}
-                margin="normal"
+                onChange={handleBrandChange}
+                inputValue={tilesForm.brand}
+                onInputChange={(event, newInputValue) => {
+                  const updatedForm = { ...tilesForm, brand: newInputValue };
+                  setTilesForm(updatedForm);
+                  
+                  // Update shade options based on selected brand
+                  if (newInputValue) {
+                    const shades = getUniqueShades(newInputValue);
+                    setShadeOptions(shades);
+                  } else {
+                    setShadeOptions([]);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    label="Brand"
+                    name="brand"
+                    margin="normal"
+                    required
+                  />
+                )}
+                filterOptions={(options, { inputValue }) => {
+                  // Only show options when 2 or more characters are typed
+                  if (inputValue.length < 2) return [];
+                  return options.filter(option => 
+                    option.toLowerCase().includes(inputValue.toLowerCase())
+                  );
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -1100,13 +1230,35 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Shade Name"
-                name="shadeName"
+              <Autocomplete
+                freeSolo
+                options={shadeOptions}
                 value={tilesForm.shadeName}
-                onChange={handleTilesFormChange}
-                margin="normal"
+                onChange={handleShadeChange}
+                inputValue={tilesForm.shadeName}
+                onInputChange={(event, newInputValue) => {
+                  const updatedForm = { ...tilesForm, shadeName: newInputValue };
+                  setTilesForm(updatedForm);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    label="Shade Name"
+                    name="shadeName"
+                    margin="normal"
+                    required
+                    helperText={!tilesForm.brand ? "Select a brand first" : ""}
+                  />
+                )}
+                disabled={!tilesForm.brand} // Disable if no brand is selected
+                filterOptions={(options, { inputValue }) => {
+                  // Only show options when 2 or more characters are typed
+                  if (inputValue.length < 2) return [];
+                  return options.filter(option => 
+                    option.toLowerCase().includes(inputValue.toLowerCase())
+                  );
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -1155,19 +1307,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 InputProps={{ inputProps: { min: 0, max: 100 } }}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Items Per Box"
-                name="packagingInfo"
-                type="number"
-                value={tilesForm.packagingInfo}
-                onChange={handleTilesFormChange}
-                margin="normal"
-                InputProps={{ inputProps: { min: 1 } }}
-                helperText="Default is 3 items per box. When items exceed this, new boxes are automatically calculated."
-              />
-            </Grid>
+
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -1181,6 +1321,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 helperText="Total area required in square feet"
               />
             </Grid>
+
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -1191,7 +1332,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 onChange={handleTilesFormChange}
                 margin="normal"
                 InputProps={{ inputProps: { min: 0 } }}
-                helperText="Enter the area covered by one box in square feet. Each box contains exactly 3 tiles."
+                helperText="Area covered by one box in square feet"
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -1204,8 +1345,8 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 onChange={handleTilesFormChange}
                 margin="normal"
                 InputProps={{ inputProps: { min: 0 } }}
-                helperText="Automatically calculated based on area required (each box contains 3 tiles)"
-                disabled
+                helperText="Calculated based on Area Required and Area in 1 Box"
+                disabled={tilesForm.areaInOneBox > 0}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -1283,23 +1424,68 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Brand"
-                name="brand"
+              <Autocomplete
+                freeSolo
+                options={adhesiveBrandOptions}
                 value={adhesiveForm.brand}
-                onChange={handleAdhesiveFormChange}
-                margin="normal"
+                onChange={handleAdhesiveBrandChange}
+                inputValue={adhesiveForm.brand}
+                onInputChange={(event, newInputValue) => {
+                  const updatedForm = { ...adhesiveForm, brand: newInputValue };
+                  setAdhesiveForm(updatedForm);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    label="Brand"
+                    name="brand"
+                    margin="normal"
+                    required
+                  />
+                )}
+                filterOptions={(options, { inputValue }) => {
+                  // Only show options when 2 or more characters are typed
+                  if (inputValue.length < 2) return [];
+                  return options.filter(option => 
+                    option.toLowerCase().includes(inputValue.toLowerCase())
+                  );
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Category"
-                name="category"
+              <Autocomplete
+                freeSolo
+                options={categoryOptions}
                 value={adhesiveForm.category}
-                onChange={handleAdhesiveFormChange}
-                margin="normal"
+                onChange={(event, newValue) => {
+                  const updatedForm = { ...adhesiveForm, category: newValue || '' };
+                  setAdhesiveForm(updatedForm);
+                }}
+                inputValue={adhesiveForm.category}
+                onInputChange={(event, newInputValue) => {
+                  const updatedForm = { ...adhesiveForm, category: newInputValue };
+                  setAdhesiveForm(updatedForm);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    label="Category"
+                    name="category"
+                    margin="normal"
+                    required
+                    helperText={!adhesiveForm.brand ? "Select a brand first" : ""}
+                  />
+                )}
+                disabled={!adhesiveForm.brand} // Disable if no brand is selected
+                filterOptions={(options, { inputValue }) => {
+                  // Only show options when 2 or more characters are typed
+                  if (inputValue.length < 2) return [];
+                  return options.filter(option => 
+                    option.toLowerCase().includes(inputValue.toLowerCase())
+                  );
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -1368,23 +1554,68 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Brand"
-                name="brand"
+              <Autocomplete
+                freeSolo
+                options={cpswBrandOptions}
                 value={cpswForm.brand}
-                onChange={handleCpswFormChange}
-                margin="normal"
+                onChange={handleCpswBrandChange}
+                inputValue={cpswForm.brand}
+                onInputChange={(event, newInputValue) => {
+                  const updatedForm = { ...cpswForm, brand: newInputValue };
+                  setCpswForm(updatedForm);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    label="Brand"
+                    name="brand"
+                    margin="normal"
+                    required
+                  />
+                )}
+                filterOptions={(options, { inputValue }) => {
+                  // Only show options when 2 or more characters are typed
+                  if (inputValue.length < 2) return [];
+                  return options.filter(option => 
+                    option.toLowerCase().includes(inputValue.toLowerCase())
+                  );
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Product Code"
-                name="productCode"
+              <Autocomplete
+                freeSolo
+                options={productCodeOptions}
                 value={cpswForm.productCode}
-                onChange={handleCpswFormChange}
-                margin="normal"
+                onChange={(event, newValue) => {
+                  const updatedForm = { ...cpswForm, productCode: newValue || '' };
+                  setCpswForm(updatedForm);
+                }}
+                inputValue={cpswForm.productCode}
+                onInputChange={(event, newInputValue) => {
+                  const updatedForm = { ...cpswForm, productCode: newInputValue };
+                  setCpswForm(updatedForm);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    label="Product Code"
+                    name="productCode"
+                    margin="normal"
+                    required
+                    helperText={!cpswForm.brand ? "Select a brand first" : ""}
+                  />
+                )}
+                disabled={!cpswForm.brand} // Disable if no brand is selected
+                filterOptions={(options, { inputValue }) => {
+                  // Only show options when 2 or more characters are typed
+                  if (inputValue.length < 2) return [];
+                  return options.filter(option => 
+                    option.toLowerCase().includes(inputValue.toLowerCase())
+                  );
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
