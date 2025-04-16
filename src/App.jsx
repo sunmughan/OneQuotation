@@ -14,6 +14,7 @@ import StaffManagement from './pages/StaffManagement';
 import Settings from './pages/Settings';
 import Install from './pages/Install';
 import Layout from './components/Layout';
+import QuotationDownload from './pages/QuotationDownload';
 
 // Create a theme instance
 const theme = createTheme({
@@ -38,7 +39,7 @@ const theme = createTheme({
 
 function App() {
   const [isInstalled, setIsInstalled] = useState(true);
-  
+
   useEffect(() => {
     // Check if app is installed by looking for appConfig in localStorage
     const appConfig = localStorage.getItem('appConfig');
@@ -54,7 +55,7 @@ function App() {
       }
     }
   }, []);
-  
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -68,6 +69,7 @@ function App() {
                 <Route path="/configure/:category" element={<ProductConfiguration />} />
                 <Route path="/generate" element={<QuotationGeneration />} />
                 <Route path="/manage" element={<QuotationManagement />} />
+                <Route path="/manage/:quotationId" element={<QuotationDownload />} />
                 <Route path="/products" element={<ProductManagement />} />
                 <Route path="/customers" element={<CustomerManagement />} />
                 <Route path="/staff" element={<StaffManagement />} />
