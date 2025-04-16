@@ -7,7 +7,7 @@
   
   .invoice-title {
     text-align: center;
-    color: #007bff;
+    color: #000000;
     font-size: 20px;
     /* margin-bottom: 20px; */
     border-bottom: 2px solid black;
@@ -22,11 +22,6 @@
   .company-details,
   .invoice-details {
     width: 48%;
-  }
-  
-  .company-logo {
-    height: 50px;
-    margin-bottom: 10px;
   }
   
   .address-section {
@@ -124,7 +119,7 @@
   }
   
   .company-logo {
-    width: 80px;
+    width: 180px;
     height: auto;
     margin: 10px;
   }

@@ -99,11 +99,11 @@ const Install = () => {
   const testDatabaseConnection = async () => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       // Create a PHP script URL to test the connection
       const testUrl = '/api/test-db-connection.php';
-      
+
       // Prepare the connection data
       const connectionData = {
         host: dbConfig.host,
@@ -112,7 +112,7 @@ const Install = () => {
         password: dbConfig.password,
         port: dbConfig.port
       };
-      
+
       // For development/demo purposes, simulate a successful connection
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         setTimeout(() => {
@@ -122,14 +122,14 @@ const Install = () => {
             message: 'Connection successful! (Development mode)',
           });
           setSuccess('Database connection successful!');
-          
+
           setTimeout(() => {
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
           }, 1500);
         }, 2000);
         return;
       }
-      
+
       // For production, make an actual connection test
       const response = await fetch(testUrl, {
         method: 'POST',
@@ -138,10 +138,10 @@ const Install = () => {
         },
         body: JSON.stringify(connectionData),
       });
-      
+
       const data = await response.json();
       setIsLoading(false);
-      
+
       if (data.success) {
         setTestConnection({
           status: true,
@@ -171,7 +171,7 @@ const Install = () => {
   const migrateData = async () => {
     setIsLoading(true);
     setError('');
-    
+
     // Get all data from localStorage that needs to be migrated
     const dataToMigrate = {
       products: JSON.parse(localStorage.getItem('products') || '{}'),
@@ -180,26 +180,26 @@ const Install = () => {
       quotations: JSON.parse(localStorage.getItem('savedQuotations') || '[]'),
       settings: JSON.parse(localStorage.getItem('businessSettings') || '{}'),
     };
-    
+
     try {
       // For development/demo purposes, simulate a successful migration
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         setTimeout(() => {
           setIsLoading(false);
           setSuccess('Data migration completed successfully! (Development mode)');
-          
+
           // Store database configuration
           localStorage.setItem('dbConfig', JSON.stringify(dbConfig));
-          
+
           // Proceed to next step
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }, 3000);
         return;
       }
-      
+
       // For production, make an actual API call to create tables and migrate data
       const migrationUrl = '/api/migrate-data.php';
-      
+
       const response = await fetch(migrationUrl, {
         method: 'POST',
         headers: {
@@ -211,10 +211,10 @@ const Install = () => {
           prefix: dbConfig.prefix
         }),
       });
-      
+
       const data = await response.json();
       setIsLoading(false);
-      
+
       if (data.success) {
         setSuccess('Data migration completed successfully!');
         localStorage.setItem('dbConfig', JSON.stringify(dbConfig));
@@ -236,19 +236,16 @@ const Install = () => {
       version: '1.0.0',
       dbConfig: dbConfig
     };
-    
+
     // Store the configuration in localStorage
     localStorage.setItem('appConfig', JSON.stringify(appConfig));
     localStorage.setItem('dbConfig', JSON.stringify(dbConfig));
-    
+
     // Update state
     setIsInstalled(true);
     setSuccess('Installation completed successfully! You will be redirected to the product selection page.');
-    
-    // Redirect to product selection page after a delay
-    setTimeout(() => {
-      navigate('/select');
-    }, 3000);
+
+    navigate('/');
   };
 
   const resetInstallation = () => {
@@ -365,7 +362,7 @@ const Install = () => {
                 helperText="Prefix for database tables (e.g., 'quotation_')"
               />
               {testConnection.status !== null && (
-                <Alert 
+                <Alert
                   severity={testConnection.status ? "success" : "error"}
                   sx={{ mt: 2 }}
                 >
@@ -437,7 +434,7 @@ const Install = () => {
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Quotation Management System Setup
         </Typography>
-        
+
         <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
           {steps.map((label) => (
             <Step key={label}>
@@ -445,9 +442,9 @@ const Install = () => {
             </Step>
           ))}
         </Stepper>
-        
+
         {getStepContent(activeStep)}
-        
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
           <Button
             disabled={activeStep === 0 || isLoading}
@@ -467,7 +464,7 @@ const Install = () => {
             </Button>
           </Box>
         </Box>
-        
+
         {isInstalled && (
           <Box sx={{ mt: 4, textAlign: 'center' }}>
             <Button
@@ -481,7 +478,7 @@ const Install = () => {
           </Box>
         )}
       </Paper>
-      
+
       <Snackbar
         open={!!error}
         autoHideDuration={6000}
@@ -491,7 +488,7 @@ const Install = () => {
           {error}
         </Alert>
       </Snackbar>
-      
+
       <Snackbar
         open={!!success}
         autoHideDuration={3000}
