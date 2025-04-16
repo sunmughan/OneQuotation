@@ -43,9 +43,6 @@ const Settings = () => {
   const [logo, setLogo] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
   
-  // Template selection state
-  const [selectedTemplate, setSelectedTemplate] = useState('template1');
-  
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -69,17 +66,10 @@ const Settings = () => {
         setLogoPreview(savedSettings.logo);
       }
       
-      // Load template selection
-      if (savedSettings.selectedTemplate) {
-        setSelectedTemplate(savedSettings.selectedTemplate);
-      }
+
     }
   }, []);
   
-  // Handle template change
-  const handleTemplateChange = (templateId) => {
-    setSelectedTemplate(templateId);
-  };
   
   // Handle logo upload
   const handleLogoUpload = (event) => {
@@ -110,8 +100,7 @@ const Settings = () => {
       businessZipCode,
       businessPhone,
       businessEmail,
-      logo,
-      selectedTemplate
+      logo
     };
     
     // Save to localStorage
@@ -282,146 +271,7 @@ const Settings = () => {
           </Grid>
         </Paper>
         
-        <Paper className="section" sx={{ p: isSmall ? 2 : 3, mb: isSmall ? 2 : 3 }}>
-          <Typography 
-            variant="h6" 
-            gutterBottom
-            sx={{ fontSize: isSmall ? '1rem' : '1.25rem' }}
-          >
-            Quotation Template
-          </Typography>
-          
-          <Typography variant="body2" color="text.secondary" paragraph>
-            Choose a template design for your quotations. The selected template will be used when generating PDF quotations.
-          </Typography>
-          
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                sx={{ 
-                  cursor: 'pointer',
-                  border: selectedTemplate === 'simple' ? '2px solid #1976d2' : '1px solid #e0e0e0',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={() => setSelectedTemplate('simple')}
-              >
-                <Box sx={{ p: 1, bgcolor: selectedTemplate === 'simple' ? 'primary.light' : 'transparent' }}>
-                  <Typography variant="subtitle2" align="center">
-                    Standard
-                  </Typography>
-                </Box>
-                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                  <Box 
-                    component="img" 
-                    src="/images/template1.svg" 
-                    alt="Standard Template" 
-                    sx={{ width: '100%', height: 'auto', border: '1px solid #f0f0f0' }}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                sx={{ 
-                  cursor: 'pointer',
-                  border: selectedTemplate === 'template2' ? '2px solid #1976d2' : '1px solid #e0e0e0',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={() => setSelectedTemplate('template2')}
-              >
-                <Box sx={{ p: 1, bgcolor: selectedTemplate === 'template2' ? 'primary.light' : 'transparent' }}>
-                  <Typography variant="subtitle2" align="center">
-                    Green
-                  </Typography>
-                </Box>
-                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                  <Box 
-                    component="img" 
-                    src="/images/template4.svg" 
-                    alt="Green Template" 
-                    sx={{ width: '100%', height: 'auto', border: '1px solid #f0f0f0' }}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                sx={{ 
-                  cursor: 'pointer',
-                  border: selectedTemplate === 'template3' ? '2px solid #1976d2' : '1px solid #e0e0e0',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={() => setSelectedTemplate('template3')}
-              >
-                <Box sx={{ p: 1, bgcolor: selectedTemplate === 'template3' ? 'primary.light' : 'transparent' }}>
-                  <Typography variant="subtitle2" align="center">
-                    Purple
-                  </Typography>
-                </Box>
-                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                  <Box 
-                    component="img" 
-                    src="/images/template5.svg" 
-                    alt="Purple Template" 
-                    sx={{ width: '100%', height: 'auto', border: '1px solid #f0f0f0' }}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                sx={{ 
-                  cursor: 'pointer',
-                  border: selectedTemplate === 'template4' ? '2px solid #1976d2' : '1px solid #e0e0e0',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={() => setSelectedTemplate('template4')}
-              >
-                <Box sx={{ p: 1, bgcolor: selectedTemplate === 'template4' ? 'primary.light' : 'transparent' }}>
-                  <Typography variant="subtitle2" align="center">
-                    Orange
-                  </Typography>
-                </Box>
-                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                  <Box 
-                    component="img" 
-                    src="/images/template1.svg" 
-                    alt="Orange Template" 
-                    sx={{ width: '100%', height: 'auto', border: '1px solid #f0f0f0' }}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                sx={{ 
-                  cursor: 'pointer',
-                  border: selectedTemplate === 'template1' ? '2px solid #1976d2' : '1px solid #e0e0e0',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={() => setSelectedTemplate('template1')}
-              >
-                <Box sx={{ p: 1, bgcolor: selectedTemplate === 'template1' ? 'primary.light' : 'transparent' }}>
-                  <Typography variant="subtitle2" align="center">
-                    Blue
-                  </Typography>
-                </Box>
-                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                  <Box 
-                    component="img" 
-                    src="/images/template3.svg" 
-                    alt="Blue Template" 
-                    sx={{ width: '100%', height: 'auto', border: '1px solid #f0f0f0' }}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Paper>
+
         
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
           <Button 

@@ -122,7 +122,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
   // State for search
   const [searchTerm, setSearchTerm] = useState('');
   
-<<<<<<< Updated upstream
   // State for brand and product variation suggestions
   const [brandOptions, setBrandOptions] = useState<string[]>([]);
   const [shadeOptions, setShadeOptions] = useState<string[]>([]);
@@ -130,13 +129,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
   const [cpswBrandOptions, setCpswBrandOptions] = useState<string[]>([]);
   const [productCodeOptions, setProductCodeOptions] = useState<string[]>([]);
-=======
-  // State for brand and shade suggestions
-  const [brandOptions, setBrandOptions] = useState<string[]>([]);
-  const [shadeOptions, setShadeOptions] = useState<string[]>([]);
-  const [adhesiveBrandOptions, setAdhesiveBrandOptions] = useState<string[]>([]);
-  const [cpswBrandOptions, setCpswBrandOptions] = useState<string[]>([]);
->>>>>>> Stashed changes
   
   // State for dialog
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -367,7 +359,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     );
   };
   
-<<<<<<< Updated upstream
   // Get unique categories for a specific adhesive brand
   const getUniqueCategories = (brand: string): string[] => {
     if (!products.adhesive || products.adhesive.length === 0) return [];
@@ -392,8 +383,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     );
   };
   
-=======
->>>>>>> Stashed changes
   // Handle brand selection in tiles form
   const handleBrandChange = (_event: React.SyntheticEvent, newValue: string | null) => {
     // Update the brand in the form and reset shadeName
@@ -411,7 +400,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
   
   // Handle brand selection in adhesive form
   const handleAdhesiveBrandChange = (_event: React.SyntheticEvent, newValue: string | null) => {
-<<<<<<< Updated upstream
     // Update the brand in the form and reset category
     const updatedForm = { ...adhesiveForm, brand: newValue || '', category: '' };
     setAdhesiveForm(updatedForm);
@@ -423,15 +411,10 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     } else {
       setCategoryOptions([]);
     }
-=======
-    const updatedForm = { ...adhesiveForm, brand: newValue || '' };
-    setAdhesiveForm(updatedForm);
->>>>>>> Stashed changes
   };
   
   // Handle brand selection in cpsw form
   const handleCpswBrandChange = (_event: React.SyntheticEvent, newValue: string | null) => {
-<<<<<<< Updated upstream
     // Update the brand in the form and reset productCode
     const updatedForm = { ...cpswForm, brand: newValue || '', productCode: '' };
     setCpswForm(updatedForm);
@@ -443,10 +426,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
     } else {
       setProductCodeOptions([]);
     }
-=======
-    const updatedForm = { ...cpswForm, brand: newValue || '' };
-    setCpswForm(updatedForm);
->>>>>>> Stashed changes
   };
   
   // Handle shade selection in tiles form
@@ -481,10 +460,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
       noOfBoxes = parseInt(String(value)) || 0;
     } else if ((name === 'areaRequired' || name === 'areaInOneBox') && areaInOneBox > 0) {
       // Calculate number of boxes when area required or area in one box changes
-<<<<<<< Updated upstream
       // Always round up to the next whole number when there's a decimal value
-=======
->>>>>>> Stashed changes
       noOfBoxes = Math.ceil(areaRequired / areaInOneBox);
     }
     
@@ -771,7 +747,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
           const mrp = parseFloat(row.mrp) || 0;
           const discount = parseFloat(row.discount) || 0;
           const areaRequired = parseFloat(row.areaRequired) || 0;
-<<<<<<< Updated upstream
           const areaInOneBox = parseFloat(row.areaInOneBox) || 0;
           let noOfBoxes = parseInt(row.noOfBoxes) || 0;
           
@@ -780,18 +755,11 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ initialTab = 'til
             // Always round up to the next whole number when there's a decimal value
             noOfBoxes = Math.ceil(areaRequired / areaInOneBox);
           }
-=======
-          const noOfBoxes = parseInt(row.noOfBoxes) || 0; // Use provided number of boxes
->>>>>>> Stashed changes
           
           // Calculate discounted price by subtracting the discount amount from total price
           // Formula: discountedPrice = totalPrice - (totalPrice * discount/100)
           const totalPrice = mrp * areaRequired;
-<<<<<<< Updated upstream
           const discountedPrice = totalPrice - (totalPrice * discount / 100);
-=======
-          const discountedPrice = totalPrice - (totalPrice * discount / 100)
->>>>>>> Stashed changes
           // Calculate total amount using MRP (unchanged by discount)
           const totalAmount = mrp * areaRequired;
           // The discounted price is already calculated above and reflects the discount
@@ -931,12 +899,8 @@ let templateWorksheet: XLSX.WorkSheet;
         mrp: 100,
         discount: 10,
         areaRequired: 100, // Area in square feet
-<<<<<<< Updated upstream
         areaInOneBox: 30.72, // Area covered by one box in square feet
         noOfBoxes: 4, // Number of boxes required (calculated as Math.ceil(areaRequired/areaInOneBox))
-=======
-        noOfBoxes: 4, // Number of boxes required
->>>>>>> Stashed changes
         pricePerSqFt: 90,
         totalAmount: 9000
       }];
@@ -996,7 +960,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
       
       // Add a header row with explanations
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        'Brand', 'Area of Application', 'Shade Name', 'Dimensions', 'Surface', 'MRP', 'Discount', 'Area Required', 'No of Boxes', 'Price Per SqFt', 'Total Amount'
+        'Brand', 'Area of Application', 'Shade Name', 'Dimensions', 'Surface', 'MRP', 'Discount', 'Area Required', 'Area in 1 Box', 'No of Boxes', 'Price Per SqFt', 'Total Amount'
       ]], { origin: 'A1' });
       
       // Make the header row bold
@@ -1244,10 +1208,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                     name="brand"
                     margin="normal"
                     required
-<<<<<<< Updated upstream
-=======
-                    helperText="Type 2+ characters to see suggestions"
->>>>>>> Stashed changes
                   />
                 )}
                 filterOptions={(options, { inputValue }) => {
@@ -1375,7 +1335,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 helperText="Area covered by one box in square feet"
               />
             </Grid>
-
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -1386,11 +1345,7 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                 onChange={handleTilesFormChange}
                 margin="normal"
                 InputProps={{ inputProps: { min: 0 } }}
-<<<<<<< Updated upstream
                 helperText="Calculated based on Area Required and Area in 1 Box"
-=======
-                helperText="Auto-calculated when area and box size are set"
->>>>>>> Stashed changes
                 disabled={tilesForm.areaInOneBox > 0}
               />
             </Grid>
@@ -1487,10 +1442,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                     name="brand"
                     margin="normal"
                     required
-<<<<<<< Updated upstream
-=======
-                    helperText="Type 2+ characters to see suggestions"
->>>>>>> Stashed changes
                   />
                 )}
                 filterOptions={(options, { inputValue }) => {
@@ -1621,10 +1572,6 @@ let adhesiveWorksheet = XLSX.utils.json_to_sheet(template);
                     name="brand"
                     margin="normal"
                     required
-<<<<<<< Updated upstream
-=======
-                    helperText="Type 2+ characters to see suggestions"
->>>>>>> Stashed changes
                   />
                 )}
                 filterOptions={(options, { inputValue }) => {
